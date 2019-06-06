@@ -10,7 +10,8 @@
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
     "react-spring": "^8.0.20",
-    "react-use-gesture": "^5.0.2"
+    "react-use-gesture": "^5.0.2",
+    "styled-components": "^4.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -32,8 +33,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "styled-components": "^4.2.1"
   }
 }
