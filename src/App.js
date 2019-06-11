@@ -4,16 +4,16 @@ import random from 'lodash/random';
 import { Typography, Tag, Divider } from 'antd';
 import PullGesture from './PullGesture';
 import MenuToggle from './MenuToggle';
+import TodoList from './TodoList';
 
 const { Title, Paragraph } = Typography;
 
 const Wrapper = styled.div`
 	> div.demo {
 		position: relative;
-		height: 300px;
+		height: ${props => props.height}px;
 		overflow: hidden;
 		background: rgb(240, 240, 240);
-
 		${props =>
 			props.isCenter &&
 			css`
@@ -39,7 +39,11 @@ const tagColors = [
 ];
 
 const DemoBlock = props => (
-	<Wrapper className="col-6" isCenter={props.isCenter}>
+	<Wrapper
+		className="col-6 mb-4"
+		isCenter={props.isCenter}
+		height={props.height}
+	>
 		<Title level={4}>{props.title}</Title>
 		<Paragraph>
 			<Tag color={tagColors[random(0, tagColors.length, false)]}>
@@ -51,7 +55,8 @@ const DemoBlock = props => (
 );
 
 DemoBlock.defaultProps = {
-	isCenter: true
+	isCenter: true,
+	height: 300
 };
 
 function App() {
@@ -67,6 +72,13 @@ function App() {
 				</DemoBlock>
 				<DemoBlock title="Menu Toggle" tag="USESPRING" isCenter={false}>
 					<MenuToggle />
+				</DemoBlock>
+				<DemoBlock
+					title="Todo List"
+					tag="USETRANSITION"
+					isCenter={false}
+				>
+					<TodoList />
 				</DemoBlock>
 			</div>
 		</div>
