@@ -5,6 +5,7 @@ import { Typography, Tag, Divider } from 'antd';
 import PullGesture from './PullGesture';
 import MenuToggle from './MenuToggle';
 import TodoList from './TodoList';
+import TransitionSlider from './TransitionSlider';
 
 const { Title, Paragraph } = Typography;
 
@@ -79,6 +80,13 @@ function App() {
 					isCenter={false}
 				>
 					<TodoList />
+				</DemoBlock>
+				<DemoBlock
+					title="Transition Slider"
+					tag="USETRANSITION"
+					isCenter={false}
+				>
+					<TransitionSlider />
 				</DemoBlock>
 			</div>
 		</div>
