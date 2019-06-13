@@ -6,6 +6,7 @@ import PullGesture from './PullGesture';
 import MenuToggle from './MenuToggle';
 import TodoList from './TodoList';
 import TransitionSlider from './TransitionSlider';
+import DetailSwitch from './DetailSwitch';
 
 const { Title, Paragraph } = Typography;
 
@@ -41,7 +42,7 @@ const tagColors = [
 
 const DemoBlock = props => (
 	<Wrapper
-		className="col-6 mb-4"
+		className={`col-${props.gridSize} mb-4`}
 		isCenter={props.isCenter}
 		height={props.height}
 	>
@@ -56,8 +57,9 @@ const DemoBlock = props => (
 );
 
 DemoBlock.defaultProps = {
-	isCenter: true,
-	height: 300
+	isCenter: false,
+	height: 300,
+	gridSize: 6
 };
 
 function App() {
@@ -68,25 +70,25 @@ function App() {
 			</Title>
 			<Divider />
 			<div className="row">
-				<DemoBlock title="Pull Gesture" tag="USESPRING">
+				<DemoBlock title="Pull Gesture" tag="USESPRING" isCenter>
 					<PullGesture />
 				</DemoBlock>
-				<DemoBlock title="Menu Toggle" tag="USESPRING" isCenter={false}>
+				<DemoBlock title="Menu Toggle" tag="USESPRING">
 					<MenuToggle />
 				</DemoBlock>
-				<DemoBlock
-					title="Todo List"
-					tag="USETRANSITION"
-					isCenter={false}
-				>
+				<DemoBlock title="Todo List" tag="USETRANSITION">
 					<TodoList />
 				</DemoBlock>
-				<DemoBlock
-					title="Transition Slider"
-					tag="USETRANSITION"
-					isCenter={false}
-				>
+				<DemoBlock title="Transition Slider" tag="USETRANSITION">
 					<TransitionSlider />
+				</DemoBlock>
+				<DemoBlock
+					title="Detail Switch (inspired by Antd Motion example)"
+					tag="USETRANSITION"
+					gridSize={12}
+					height={450}
+				>
+					<DetailSwitch />
 				</DemoBlock>
 			</div>
 		</div>

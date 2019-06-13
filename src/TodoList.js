@@ -67,7 +67,7 @@ const TodoList = () => {
 	}
 
 	return (
-		<div className="p-4">
+		<div className="p-4 styled-scrollbar">
 			<div className="text-center mb-2">
 				<Form layout="inline" onSubmit={handleAdd}>
 					<Form.Item>
