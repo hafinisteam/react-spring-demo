@@ -1,36 +1,20 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import { Button } from 'antd';
+import styled from 'styled-components';
 import { useTransition, animated } from 'react-spring';
+import { Select } from 'antd';
 import ReactLogo from './images/reactjs.png';
 import VueLogo from './images/vue.png';
 import AngularLogo from './images/angular.png';
 import ReduxLogo from './images/redux.png';
 import NodeLogo from './images/nodejs.png';
 
-const SliderButton = styled(Button)`
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	${props =>
-		props.dir === 'left' &&
-		css`
-			left: 10px;
-		`}
-	${props =>
-		props.dir === 'right' &&
-		css`
-			right: 10px;
-		`}
-`;
+const Option = Select.Option;
 
 const SliderWrapper = styled.div`
 	position: relative;
 	width: 100%;
 	height: 100%;
+	cursor: pointer;
 `;
 
 const Slide = styled(animated.div)`
@@ -44,6 +28,15 @@ const Slide = styled(animated.div)`
 	justify-content: center;
 	align-items: center;
 	will-change: opacity, transform;
+	backface-visibility: hidden;
+	transform-style: preserve-3d;
+`;
+
+const SelectWrapper = styled.div`
+	text-align: center;
+	position: relative;
+	z-index: 3;
+	padding-top: 20px;
 `;
 
 const slideData = [
@@ -55,51 +48,106 @@ const slideData = [
 ];
 
 const slides = slideData.map(s => {
-	return ({ style }) => (
-		<Slide style={style} bg={s.bgColor}>
+	return ({ style, ...rest }) => (
+		<Slide style={style} bg={s.bgColor} {...rest}>
 			<img src={s.logo} alt="SPA logo" />
 		</Slide>
 	);
 });
 
+const animations = {
+	slideInHoz: {
+		ani: {
+			from: {
+				opacity: 0,
+				transform: `translate3d(100%,0,0)`
+			},
+			enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
+			leave: { opacity: 0, transform: `translate3d(-50%,0,0)` }
+		},
+		name: 'Horizontal Slide'
+	},
+	slideInVer: {
+		ani: {
+			from: {
+				opacity: 0,
+				transform: `translate3d(0,100%,0)`
+			},
+			enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
+			leave: { opacity: 0, transform: `translate3d(0,-50%,0)` }
+		},
+		name: 'Vertical Slide'
+	},
+	fade: {
+		ani: {
+			from: {
+				opacity: 0
+			},
+			enter: { opacity: 1 },
+			leave: { opacity: 0 }
+		},
+		name: 'Fade In Out'
+	},
+	flipCardHoz: {
+		ani: {
+			from: { opacity: 0, perspective: '2000px', transform: 'rotateY(180deg)' },
+			enter: { opacity: 1, transform: 'rotateY(0)' },
+			leave: { opacity: 0, transform: 'rotateY(180deg)' },
+			config: { mass: 5, tension: 500, friction: 80 }
+		},
+		name: 'Horizontal Flip card'
+	},
+	flipCardVer: {
+		ani: {
+			from: { opacity: 0, perspective: '2000px', transform: 'rotateX(180deg)' },
+			enter: { opacity: 1, transform: 'rotateX(0)' },
+			leave: { opacity: 0, transform: 'rotateX(180deg)' },
+			config: { mass: 5, tension: 500, friction: 80 }
+		},
+		name: 'Vertical Flip card'
+	}
+};
+
 const TransitionSlider = () => {
-	const [state, setState] = useState({ index: 0, ltr: true });
-
-	const { index, ltr } = state;
-
-	function handleNextSlide() {
-		const slideIndex = index === slideData.length - 1 ? 0 : index + 1;
-		setState({ index: slideIndex, ltr: true });
-	}
-	function handlePrevSlide() {
-		const slideIndex = index === 0 ? slideData.length - 1 : index - 1;
-		setState({ index: slideIndex, ltr: false });
-	}
-
-	const transitions = useTransition(index, p=>p, {
-		from: { opacity: 0, transform: `translate3d(${ltr ? '100%' : '-100%'},0,0)` },
-    enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
-    leave: { opacity: 0, transform: `translate3d(${ltr ? '-50%' : '50%'},0,0)` },
+	const [state, setState] = useState({
+		index: 0,
+		aniStyle: animations.slideInHoz.ani
 	});
+
+	const { index, aniStyle } = state;
+
+	function handleNext() {
+		const slideIndex = index === slideData.length - 1 ? 0 : index + 1;
+		setState({ ...state, index: slideIndex });
+	}
+
+	function handleChange(value) {
+		setState({ ...state, aniStyle: animations[value].ani });
+	}
+
+	const transitions = useTransition(index, p => p, aniStyle);
+
+	const aniKeys = Object.keys(animations);
 
 	return (
 		<SliderWrapper>
+			<SelectWrapper>
+				<Select
+					defaultValue={aniKeys[0]}
+					style={{ width: 200 }}
+					onChange={handleChange}
+				>
+					{aniKeys.map(k => (
+						<Option value={k} key={animations[k].name}>
+							{animations[k].name}
+						</Option>
+					))}
+				</Select>
+			</SelectWrapper>
 			{transitions.map(({ item, key, props }) => {
 				const Slider = slides[item];
-				return <Slider key={key} style={props} />;
+				return <Slider key={key} style={props} onClick={handleNext} />;
 			})}
-			<SliderButton
-				shape="circle"
-				icon="left"
-				dir="left"
-				onClick={handlePrevSlide}
-			/>
-			<SliderButton
-				shape="circle"
-				icon="right"
-				dir="right"
-				onClick={handleNextSlide}
-			/>
 		</SliderWrapper>
 	);
 };
