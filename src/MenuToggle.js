@@ -102,12 +102,12 @@ const MenuToggle = () => {
 		mLeft: 0,
 		opa: 0,
 		scaleY: 0.8,
-		config: {
-			duration: 200,
-			friction: 14,
-			tension: 145,
-			mass: 1
-		}
+		// config: {
+		// 	duration: 200,
+		// 	friction: 14,
+		// 	tension: 145,
+		// 	mass: 1
+		// }
 	}));
 
 	const { sidebar, dropdown } = menus;
