@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useSpring, useTransition, interpolate } from 'react-spring';
+import { useSpring, useTransition, interpolate, config } from 'react-spring';
 import { Icon } from 'antd';
+import produce from 'immer';
 import {
 	SwitchContainer,
 	SwitchWrapper,
@@ -33,42 +34,56 @@ let dataArray = [
 	}
 ];
 
-const detailSlides = dataArray.map((data, index) => {
+const detailMapSlides = dataArray.map((data, index) => {
 	return ({ style }) => {
-		const { opacity, translateX, translateY, display } = style;
-		console.log(style);
+		const { translateX } = style;
+
 		return (
-					<DetailInner
-						style={{
-							background: data.color,
-							transform: translateX.interpolate(x => `translate3d(${x}px,0,0)`)
-						}}
-					>
-						<div>
-							<DetailMap>
-								<img src={data.map} alt="Detail map" />
-							</DetailMap>
-							<DetailPic>
-								<img src={data.pic} alt="Detail motor" />
-							</DetailPic>
-						</div>
-					</DetailInner>
-				// <DetailWrapper>
-				// 	<DetailInfo>
-				// 		<h5>Motorcycle</h5>
-				// 		<span style={{ background: data.background }} />
-				// 		<p>
-				// 			Taiwan called motorcycle, motor bike [1] or a motorcycle, the
-				// 			motorcycle referred to in the mainland, Hong Kong and Southeast
-				// 			Asia known as motorcycles [2], is a driven by the engine, operated
-				// 			by a hand or two directions three-wheeled vehicles, is a means of
-				// 			transport. In some military or police applications, will add a
-				// 			side compartment and a secondary wheel, become a special
-				// 			three-wheeled motorcycle, mobility Zheyi common plug-in auxiliary
-				// 			wheels.
-				// 		</p>
-				// 	</DetailInfo>
-				// </DetailWrapper>
+			<DetailInner
+				style={{
+					background: data.color,
+					transform: translateX.interpolate(x => `translate3d(${x}px,0,0)`)
+				}}
+			>
+				<div>
+					<DetailMap>
+						<img src={data.map} alt="Detail map" />
+					</DetailMap>
+					<DetailPic>
+						<img src={data.pic} alt="Detail motor" />
+					</DetailPic>
+				</div>
+			</DetailInner>
+		);
+	};
+});
+
+const detailInfoSlides = dataArray.map((data, index) => {
+	return ({ style }) => {
+		const { translateX, translateY, opacity } = style;
+		
+		return (
+			<DetailInfo
+				style={{
+					opacity: opacity.interpolate(o => `${o}`),
+					// transform: interpolate(
+					// 	[translateX, translateY],
+					// 	(x, y) => `translate3d(${x}px, ${y}px, 0)`
+					// )
+				}}
+			>
+				<h5>Motorcycle</h5>
+				<span style={{ background: data.background }} />
+				<p>
+					Taiwan called motorcycle, motor bike [1] or a motorcycle, the
+					motorcycle referred to in the mainland, Hong Kong and Southeast Asia
+					known as motorcycles [2], is a driven by the engine, operated by a
+					hand or two directions three-wheeled vehicles, is a means of
+					transport. In some military or police applications, will add a side
+					compartment and a secondary wheel, become a special three-wheeled
+					motorcycle, mobility Zheyi common plug-in auxiliary wheels.
+				</p>
+			</DetailInfo>
 		);
 	};
 });
@@ -90,8 +105,47 @@ const RenderAniBtn = props => {
 	);
 };
 
+const baseTransX = (isLeft = true) => ({
+	from: {
+		translateX: isLeft ? 300 : -300
+	},
+	enter: {
+		translateX: 0
+	},
+	leave: {
+		translateX: isLeft ? -300 : 300
+	}
+});
+
+const useInfoSwitch = (index, isLeft = true, config = {}) => {
+	return useTransition(index, null, {
+		from: {
+			translateY: -50,
+			translateX: 0,
+			opacity: 0
+		},
+		enter: {
+			translateY: 0,
+			translateX: 0,
+			opacity: 1
+		},
+		leave: {
+			translateX: isLeft ? -300 : 300,
+			opacity: 0
+		},
+		...config
+	});
+};
+
+const useTransX = (index, isLeft = true, config) => {
+	return useTransition(index, null, {
+		...baseTransX(isLeft),
+		config
+	});
+};
+
 const DetailSwitch = () => {
-	const [{ index, order }, setState] = useState({ index: 0, order: 'left' });
+	const [{ index, isLeft }, setState] = useState({ index: 0, isLeft: 'left' });
 	const { bg } = useSpring({
 		bg: dataArray[index].background,
 		config: { duration: 500 }
@@ -103,39 +157,41 @@ const DetailSwitch = () => {
 		leave: { opacity: 0 }
 	});
 
-	const detailTransition = useTransition(index, null, {
-		from: {
-			opacity: 0,
-			translateX: 300,
-			translateY: 100
-		},
-		enter: {
-			opacity: 1,
-			translateX: 0,
-			translateY: 0
-		},
-		leave: {
-			opacity: 0,
-			translateX: -300
-		}
+	const detailMapTransition = useTransX(index, isLeft, (key, state) => {
+		return { mass: 5, tension: 500, friction: 100 };
 	});
 
+	// const detailInfoTransition = useInfoSwitch(index, isLeft);
+
+	const detailInfoTransition = useTransition(index, null, {
+		from: {opacity: 0},
+		enter: {opacity: 1},
+		leave: {opacity: 0}
+	});
+
+	console.log(detailInfoTransition)
+
 	function prev() {
-		setState({ index: index - 1, order: 'right' });
+		setState({ index: index - 1, isLeft: false });
 	}
 
 	function next() {
-		setState({ index: index + 1, order: 'left' });
+		setState({ index: index + 1, isLeft: true });
 	}
-	console.log(detailSlides);
 
 	return (
 		<SwitchContainer style={{ background: bg }}>
 			<SwitchWrapper>
 				<DetailWrapper>
-					{detailTransition.map(({ item, key, props }) => {
-						const Detail = detailSlides[item];
-						return <Detail key={key} style={props} />;
+					{detailMapTransition.map(({ item, key, props }) => {
+						const Map = detailMapSlides[item];
+						return <Map key={key} style={props} />;
+					})}
+				</DetailWrapper>
+				<DetailWrapper>
+					{detailInfoTransition.map(({ item, key, props }) => {
+						const Info = detailInfoSlides[item];
+						return <Info key={key} style={props} />;
 					})}
 				</DetailWrapper>
 				<RenderAniBtn

@@ -47,7 +47,7 @@ export const DetailInner = styled(animated.div)`
 	width: 100%;
 	height: 100%;
   position: absolute;
-  will-change: transform;
+  will-change: transform, opacity;
 `;
 
 export const DetailBase = styled(animated.div)`
@@ -77,6 +77,7 @@ export const DetailPic = styled(DetailBase)`
 
 export const DetailInfo = styled(animated.div)`
 	padding: 40px;
+	will-change: transform, opacity;
 	p {
 		font-size: 12px;
 	}
